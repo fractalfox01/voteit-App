@@ -1,6 +1,14 @@
 body{
   background-color: #ccc;
 }
+header{
+  text-align: center;
+  padding-top: 5px;
+  height: 2.3em;
+  font-size: 2em;
+  background-color: #3030a9;
+  color: #ccc;
+}
 #page{
   background-color: #fff;
   color: #0d0;
