@@ -1,0 +1,27 @@
+{
+  "name": "voteit",
+  "version": "0.0.1",
+  "description": "A simple Voting Application, built with node.js, express.js. templating ejs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js 3000"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "ejs": "^2.6.1"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fractalfox01/votit-App.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express",
+    "ejs"
+  ]
+}
