@@ -1,0 +1,61 @@
+<html>
+<head>
+    <%- include partials/head.ejs %>
+    <style>
+      body{
+        background-color: #ccc;
+      }
+      header{
+        text-align: center;
+        padding-top: 5px;
+        height: 2.3em;
+        font-size: 2em;
+        background-color: #3030a9;
+        color: #ccc;
+      }
+      input{
+        background-color: #fff;
+        width: 20px;
+        height: 20px;
+      }
+      button{
+        margin-left: 47vw;
+        border-radius: 10px;
+      }
+      footer{
+        position: absolute;
+        width: 100%;
+        margin-top: 30vw;
+        text-align: center;
+      }
+      #page{
+        background-color: #fff;
+        color: blue;
+      }
+      .choices{
+        margin-left: 42vw;
+      }
+      nav{
+        display: flex;
+        flex-direction: row;
+      }
+      #filename{
+        width: 100px;
+      }
+
+    </style>
+    <!--<link rel="stylesheet" href="/styles/index.css"/>-->
+</head>
+<body>
+<%- include partials/header.ejs %>
+
+<hr/>
+<form name="create" method="post" action="/create">
+    <h4 class="choices">File Name: <input id="filename" name="filename[name]" type="text"/></h4>
+    <hr/>
+    <button type="submit">Submit</button>
+</form>
+</body>
+<%- include partials/footer.ejs %>
+<!--<script src="/scripts/index.js"></script>-->
+</html>
