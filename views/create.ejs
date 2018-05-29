@@ -18,6 +18,16 @@
         width: 20px;
         height: 20px;
       }
+      input[type=number] {
+        -moz-appearance:textfield;
+      }
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        margin: 0;
+      }
       button{
         margin-left: 47vw;
         border-radius: 10px;
@@ -25,7 +35,7 @@
       footer{
         position: absolute;
         width: 100%;
-        margin-top: 30vw;
+        margin-top: 10vw;
         text-align: center;
       }
       #page{
@@ -33,14 +43,46 @@
         color: blue;
       }
       .choices{
-        margin-left: 42vw;
+        margin-left: 25vw;
       }
       nav{
         display: flex;
         flex-direction: row;
       }
-      #filename{
+      .nav-btn{
+        height: 30px;
+        background-color: #ccc;
+        flex-grow: 1;
+        font-size: 1.5em;
+        text-align: center;
+        padding-top: 5px;
+        border: 1px solid #000;
+      }
+      .nav-btn:hover{
+        background-color: #cce;
+      }
+      .nav-blank{
+        height: 30px;
+        background-color: #ccc;
+        flex-grow: 1;
+        font-size: 1.5em;
+        text-align: center;
+        padding-top: 5px;
+        border: 1px solid #000;
+      }
+      .filename{
+        margin-left: 15px;
         width: 100px;
+      }
+      .text-area{
+        margin-left: 25vw;
+      }
+      .choiceNum{
+        margin-left: 25vw;
+      }
+      .item{
+        width: 100px;
+        margin-left: 5px;
       }
 
     </style>
@@ -48,14 +90,21 @@
 </head>
 <body>
 <%- include partials/header.ejs %>
-
-<hr/>
+<nav id="nav">
+    <div id="back" class="nav-btn">Back</div>
+    <div id="blank" class="nav-blank"></div>
+</nav>
 <form name="create" method="post" action="/create">
-    <h4 class="choices">File Name: <input id="filename" name="filename[name]" type="text"/></h4>
+    <h4 class="choices">Post Title: <input id="filename" class="filename" name="filename[name]" type="text" required/><span style="color:red;font-size:.8em;"> no spaces allowed!</span></h4>
+    <h4 class="text-area">
+        Description: <textarea id="description" name="description[desc]" rows="5" cols="50" type="text" maxlength="100" required></textarea>
+    </h4>
+    <h4 class="choiceNum">Number of choices: <input id="number" class="item" name="choice-items[num]" type="number" min="2" max="10" required/></h4>
+    <div id="choicenames"></div>
     <hr/>
-    <button type="submit">Submit</button>
+    <button id="submit" type="submit">Submit</button>
 </form>
 </body>
 <%- include partials/footer.ejs %>
-<!--<script src="/scripts/index.js"></script>-->
+<script src="/scripts/create.js"></script>
 </html>
