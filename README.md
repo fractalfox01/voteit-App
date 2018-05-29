@@ -1,7 +1,8 @@
 # A Simple Voting App
 ****
-
-### Created by Tommy V
+#### Created by Tommy V
+****
+# Currently in development
 
   This application is built using express.js
 
