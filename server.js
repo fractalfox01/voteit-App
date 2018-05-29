@@ -7,6 +7,61 @@ const mongo = require('mongodb');
 //require('ejs');
 
 const port = process.argv[2] || 3000;
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(1000+max));
+}
+
+function buildPage(filename, desc, num, names){
+  console.log("this is " + filename);
+  console.log("this is " + desc);
+  console.log("this is " + num);
+  let newpage = "<!DOCTYPE html>";
+  newpage += "<head>";
+  newpage += "<%- include partials/head.ejs %>";
+  newpage += "<style>";
+  newpage += "body{background-color: #ccc;}";
+  //body{b
+  newpage += "header{text-align: center;padding-top: 5px;height: 2.3em;font-size: 2em;background-color: #3030a9;color: #ccc;}";
+  newpage += "#3030a9;color: #ccc;}input{background-color: #fff;width: 20px;height: 20px;}";
+  newpage += "button{margin-left: 47vw;border-radius: 10px;}";
+  newpage += "footer{position: absolute;width: 100%;margin-top: 10vw;text-align: center;}";
+  newpage += "nav{display: flex;flex-direction: row;}";
+  newpage += ".nav-btn{height: 30px;background-color: #ccc;flex-grow: 1;font-size: 1.5em;text-align: center;padding-top: 5px;border: 1px solid #000;}";
+  newpage += ".nav-btn:hover{background-color: #cce;}";
+  newpage += "#back{color:blue;order:0}";
+  newpage += "#home{color:blue;order:0}";
+  newpage += "";
+  newpage += "#wrapper{margin-left: 100px;margin-right: 100px;display: flex;flex-direction: row;}";
+  newpage += ".option{height: 300px;flex-grow: 1;background-color: #ccc;border: 2px solid #000;}";
+  for(var i = 0;i < num; i++){
+    newpage += ".obj"+i+"{order: "+i+";}";
+    newpage += ".obj"+i+":hover{background-color:blue;opacity: .5;}";
+  }
+  newpage += "h4{margin-left:20vw;font-size:1.5em;}";
+  newpage += "</style>";
+  newpage += "</head>";
+  newpage += "<body>";
+  newpage += "<%- include partials/header.ejs %>";
+  newpage += "<nav id='nav'><div id='back' class='nav-btn'>Create New</div><div id='home' class='nav-btn'>Home</div></nav><hr/>";
+  newpage += "<h4>post name: " + filename + "</h4>";
+  newpage += "<h4>"+desc+"</h4>";
+  newpage += "<div id='wrapper'>";
+  for(var j = 0;j < num; j++){
+    let marble = getRandomInt(j+1);
+    newpage += "<div class='obj"+j+" option' style='color:#fff;background-color:#" + (((marble <= 999) && (marble >= 101)) ? marble : ("00" + j) ) +  ";'>";
+    newpage += "<h3 style='text-align:center;'>" + names[j] + "</h3>";
+    newpage += "</div>";
+  }
+  newpage += "</div>";
+  newpage += "</body>";
+  newpage += "<%- include partials/footer.ejs %>";
+  // newpage += "";
+  // newpage += "";
+
+  return newpage;
+
+
+}
 
 // Set's the application templating view and engine to use "EJS".
 app.set("view engine","ejs");
@@ -29,6 +84,7 @@ app.all('*', function(req, res, next){
 // Requesting URL: /login?hows_it_going
 //
 //____________________________________________________________________
+  console.log('');
   console.log("Request from IP:",req.headers['x-forwarded-for'].split(',')[0]);
   console.log("Requesting URL:",req.originalUrl);
   next();
@@ -68,17 +124,52 @@ app.get('/login', function(req, res, next){
 var bodyParser = require('body-parser'); app.use(bodyParser.json()); app.use(bodyParser.urlencoded({ extended: true }));
 
 app.all('/create', function(req, res, next){
+  let filename;
   if(req.method == 'GET'){
     console.log("GET - creating new ejs file");
-    res.render("create.ejs");
+    filename = "";
+    res.render("create.ejs", { filename });
   }else if(req.method == 'POST'){
-    console.log("POST - creating new ejs file");
-    console.log(req.body.filename.name);
+    console.log("POST - submitting attributes");
+    if(!req.body.filename){
+      req.body.filename.name = "";
+    }
+    let filename = req.body.filename.name;
+    let desc = req.body.description.desc;
+    let num = req.body['choice-items'].num;
+    let names = [];
+    for(var g in req.body.choice){
+      let v = req.body.choice[g.toString()];
+      names.push(v);
+    }
+    //  Creation of users ejs file.
+    let postbody = buildPage(filename, desc, num, names);
+
+    fs.writeFile("views/" + filename + ".ejs", postbody, function(err){
+      if(err) {
+        console.log(err.stack);
+        next();
+      }
+      console.log("new file created");
+    });
+    // req.body.filename.name
+    // req.body.description.desc
+    // req.body.choice-items.num
+
     console.log();
-    res.render("create.ejs");
+    // NOTE:----------------if the user created page stops displaying but, it's still being created. then its probably because its displaying before its created.
+    // give it more time.
+    setTimeout(function(){
+      res.render( filename + ".ejs" );
+    },1000)
+
   }else{
     next();
   }
+});
+
+app.get('/search', function(req, res, next){
+  res.render('search.ejs');
 });
 
 app.all('*', function(req, res, next){
@@ -106,6 +197,7 @@ app.all('*', function(req, res, next){
     // Treating as a not found error ( 404 ).
 
     console.log("some other error");
+    console.log(req.body);
     console.log(res.statusCode);
     res.status(404);
     res.write("<h1>Status Code " + res.statusCode + "</h1>");
