@@ -84,6 +84,9 @@
 <h1>
     Search Page
 </h1>
+<% for (var i = 0; i < fileArr.length; i++) { %>
+<h4><%= fileArr[i] %></h4>
+<% } %>
 </body>
 <%- include partials/footer.ejs %>
 <script src="/scripts/search.js"></script>
