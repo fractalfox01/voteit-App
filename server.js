@@ -4,17 +4,21 @@ const app = express();
 const fs = require('fs');
 const mongo = require('mongodb');
 
-//require('ejs');
-
 const port = process.argv[2] || 3000;
+
+// All files in views/ directory that should not be editable/displayed to a basic user should be included in the excluded array.
+const excluded = ["index.ejs","login.ejs","search.ejs","forbidden.ejs","create.ejs","404.ejs", "partials", "public", "styles"];
+
+const dir = "views/";
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(1000+max));
 }
 
 function buildPage(filename, desc, num, names){
-  console.log("this is " + filename);
-  console.log("this is " + desc);
-  console.log("this is " + num);
+  console.log("Filename: " + filename);
+  console.log("Description: " + desc);
+  console.log("Number of Choices: " + num);
   let newpage = "<!DOCTYPE html>";
   newpage += "<head>";
   newpage += "<%- include partials/head.ejs %>";
@@ -37,14 +41,19 @@ function buildPage(filename, desc, num, names){
     newpage += ".obj"+i+"{order: "+i+";}";
     newpage += ".obj"+i+":hover{background-color:blue;opacity: .5;}";
   }
-  newpage += "h4{margin-left:20vw;font-size:1.5em;}";
+  newpage += "h4{margin-left:2vw;font-size:1.5em;}";
+  newpage += "#title{margin:0px 100px 50px 100px;height:20vh;width:auto;background-color:#979797;}";
+  newpage += "#reload{color:#00f;}";
   newpage += "</style>";
   newpage += "</head>";
   newpage += "<body>";
   newpage += "<%- include partials/header.ejs %>";
   newpage += "<nav id='nav'><div id='back' class='nav-btn'>Create New</div><div id='home' class='nav-btn'>Home</div></nav><hr/>";
+  newpage += "<button id='reload' type='button'>Change Colors</button>";
+  newpage += "<section id='title'>";
   newpage += "<h4>post name: " + filename + "</h4>";
   newpage += "<h4>"+desc+"</h4>";
+  newpage += "</section>";
   newpage += "<div id='wrapper'>";
   for(var j = 0;j < num; j++){
     let marble = getRandomInt(j+1);
@@ -53,6 +62,17 @@ function buildPage(filename, desc, num, names){
     newpage += "</div>";
   }
   newpage += "</div>";
+  newpage += "<script>";
+  newpage += "let reload = document.getElementById('reload');";
+  newpage += "let createnew = document.getElementById('back');";
+  newpage += "let home = document.getElementById('home');";
+  newpage += "";
+  newpage += "reload.addEventListener('click', function(){console.log('click');window.location.reload(true);});";
+  newpage += "createnew.addEventListener('click', function(){console.log('create click');location = 'https://voteit.glitch.me/create'});";
+  newpage += "home.addEventListener('click', function(){console.log('home click');location = 'https://voteit.glitch.me/'});";
+  newpage += "";
+  newpage += "";
+  newpage += "</script>";
   newpage += "</body>";
   newpage += "<%- include partials/footer.ejs %>";
   // newpage += "";
@@ -169,7 +189,39 @@ app.all('/create', function(req, res, next){
 });
 
 app.get('/search', function(req, res, next){
-  res.render('search.ejs');
+  // /search uses the fs module to return the directory contents of views/
+  // This function uses the array "excluded" to check for files that should NOT be displayed to the user.
+  let fileArr = [];
+  let count = 0;
+  fs.readdir(dir, (err, data) => {
+    if(err) {
+      let tried = "Directory Read Error";
+      tried += "<p>" + err.stack + "</p>";
+      res.render('404.ejs',{ tried });
+    }
+
+    let len = data.length;
+    for(var i = 0;i < len; i++){
+      for(var j = 0; j < excluded.length; j++){
+        if(data[i].toString() == excluded[j]){
+          break;
+        }else{
+          count++;
+        }
+      }
+      if(count == excluded.length){
+         fileArr.push(data[i].toString());
+         count = 0;
+      }else{
+        count = 0;
+      }
+    }
+  });
+  setTimeout(function(){
+    console.log(fileArr);
+    res.render('search.ejs', { fileArr });
+  },1000);
+
 });
 
 app.all('*', function(req, res, next){
@@ -189,9 +241,9 @@ app.all('*', function(req, res, next){
 
   if(res.statusCode == 403){
     // All non-matched routes are forbidden.
-
-    res.write("<h1 style='color:red;'>Forbidden - Access Denied</h1>");
-    res.end();
+    res.render('forbidden.ejs');
+    // res.write("<h1 style='color:red;'>Forbidden - Access Denied</h1>");
+    // res.end();
   }else{
     // triggers on all other unknown requests to the server.
     // Treating as a not found error ( 404 ).
@@ -199,10 +251,12 @@ app.all('*', function(req, res, next){
     console.log("some other error");
     console.log(req.body);
     console.log(res.statusCode);
-    res.status(404);
-    res.write("<h1>Status Code " + res.statusCode + "</h1>");
-    res.write("<h1>Failed to find " + req.originalUrl + "</h1>");
-    res.end();
+    // res.status(404);
+    // res.write("<h1>Status Code " + res.statusCode + "</h1>");
+    // res.write("<h1>Failed to find " + req.originalUrl + "</h1>");
+    // res.end();
+    let tried = req.originalUrl;
+    res.render('404.ejs',{tried});
   }
 
 });
