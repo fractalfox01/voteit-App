@@ -1,0 +1,81 @@
+<html>
+<head>
+    <%- include partials/head.ejs %>
+    <style>
+      body{
+        background-color: #ccc;
+      }
+      header{
+        text-align: center;
+        padding-top: 5px;
+        height: 2.3em;
+        font-size: 2em;
+        background-color: #3030a9;
+        color: #ccc;
+      }
+      input{
+        background-color: #fff;
+        width: 20px;
+        height: 20px;
+      }
+      button{
+        margin-left: 47vw;
+        border-radius: 10px;
+      }
+      footer{
+        position: absolute;
+        width: 100%;
+        margin-top: 20vw;
+        text-align: center;
+      }
+      #page{
+        background-color: #fff;
+        color: blue;
+      }
+      .choices{
+        margin-left: 42vw;
+      }
+      nav{
+        display: flex;
+        flex-direction: row;
+      }
+      .nav-btn{
+        height: 30px;
+        background-color: #ccc;
+        flex-grow: 1;
+        font-size: 1.5em;
+        text-align: center;
+        padding-top: 5px;
+        border: 1px solid #000;
+      }
+      .nav-btn:hover{
+        background-color: #cce;
+      }
+      #create{
+        color: blue;
+        order: 0;
+      }
+      #delete{
+        color: blue;
+        order: 1;
+      }
+      #search{
+        color: blue;
+        order: 2;
+      }
+    </style>
+    <!--<link rel="stylesheet" href="/styles/index.css"/>-->
+</head>
+<body>
+<%- include partials/header.ejs %>
+
+<nav id="nav">
+    <div id="create" class="nav-btn">Create New</div>
+    <div id="search" class="nav-btn">Search</div>
+</nav>
+<hr/>
+<p>
+    <%= tried %> Was Not Found.
+</p>
+</body>
+</html>
