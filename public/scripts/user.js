@@ -39,6 +39,8 @@ let reload = document.getElementById('reload');
 let createnew = document.getElementById('back');
 let home = document.getElementById('home');
 let title = document.getElementById('title');
+let desc = document.getElementById('desc');
+let filename = document.getElementById('filename');
 
 let real = [];
 
@@ -55,22 +57,35 @@ for(var j = 0; j < real.length; j++){
   real[j].addEventListener('click', function(e){
     //console.log("outgoing to /test");
 
-      let outgoing = new XMLHttpRequest();
-      outgoing.open("POST", 'https://voteit.glitch.me/test', true);
-      outgoing.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      outgoing.onreadystatechange = function(){
+    let make = new XMLHttpRequest();
+    let trgt = Number(e.target.id.toString().substring(4))+1;
+    let path = "https://voteit.glitch.me/fetch?file=" + filename.getAttribute('value') + "&vote=vote" + trgt;
 
-        if(XMLHttpRequest.DONE === 4 && outgoing.status == 200){
-          //console.log("Goose says " + (outgoing.responseText||"quack"));
-          if(this.response && flag){
-            console.log("resp " + this.response);
-            console.log("html " + e.target.innerHTML);
-            e.target.innerHTML = Number(e.target.innerHTML) + 1;
-            flag = false;
-          }
+    //'https://voteit.glitch.me/fetch?file=testing.ejs&vote=vote1'
+    let outgoing = new XMLHttpRequest();
+    outgoing.open("POST", 'https://voteit.glitch.me/test' , true);
+    outgoing.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    outgoing.onreadystatechange = function(){
+
+      if(XMLHttpRequest.DONE === 4 && outgoing.status == 200){
+        //console.log("Goose says " + (outgoing.responseText||"quack"));
+        if(this.response && flag){
+          make.open("GET", path, true);
+          make.setRequestHeader("Content-type","text/html");
+          make.send('blah');
+          console.log("resp " + this.response);
+          console.log("html " + e.target.innerHTML);
+          e.target.innerHTML = Number(e.target.innerHTML) + 1;
+          flag = false;
         }
-      };
-      outgoing.send("bird="+this.id+"&title="+title.innerHTML);
+      }
+    };
+    let names = '';
+    for(var k = 0; k < real.length; k++){
+      names += real[k].id+",";
+    }
+    let fn = filename.getAttribute('value') + ".ejs";
+    outgoing.send("bird="+this.id+"&title="+fn+"&desc="+desc.innerHTML+"&names="+names);
 
   });
 }
