@@ -84,20 +84,44 @@
         width: 100px;
         margin-left: 5px;
       }
+      @media only screen and (max-device-width:450px){
+        button{
+          margin-left: 40vw;
+        }
+        .choices{
+          margin-left: 15vw;
+        }
+        .filename{
+          margin-left: 5px;
+          width: 100px;
+        }
+        .text-area{
+          margin-left: 10vw;
+        }
+        .choiceNum{
+          margin-left: 10vw;
+        }
+        .item{
+          width: 100px;
+          margin-left: 5px;
+        }
+        #description{
 
+        }
+      }
     </style>
     <!--<link rel="stylesheet" href="/styles/index.css"/>-->
 </head>
 <body>
 <%- include partials/header.ejs %>
 <nav id="nav">
-    <div id="back" class="nav-btn">Back</div>
-    <div id="blank" class="nav-blank"></div>
+    <div id="home" class="nav-btn">Home</div>
+    <div id="search" class="nav-btn">Search</div>
 </nav>
 <form name="create" method="post" action="/create">
     <h4 class="choices">Post Title: <input id="filename" class="filename" name="filename[name]" type="text" required/><span style="color:red;font-size:.8em;"> no spaces allowed!</span></h4>
     <h4 class="text-area">
-        Description: <textarea id="description" name="description[desc]" rows="5" cols="50" type="text" maxlength="100" required></textarea>
+        Description: <textarea id="description" name="description[desc]" rows="5" cols="40" type="text" maxlength="100" required></textarea>
     </h4>
     <h4 class="choiceNum">Number of choices: <input id="number" class="item" name="choice-items[num]" type="number" min="2" max="10" required/></h4>
     <div id="choicenames"></div>
