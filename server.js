@@ -108,7 +108,7 @@ function buildPage(filename, desc, num, names, update, colors){
   newpage += "</head>";
   newpage += "<body>";
   newpage += "<%- include partials/header.ejs %>";
-  newpage += "<nav id='nav'><div id='back' class='nav-btn'>Create New</div><div id='home' class='nav-btn'>Home</div></nav><hr/>";
+  newpage += "<nav id='nav'><div id='home' class='nav-btn'>Home</div><div id='search' class='nav-btn'>Search</div><div id='create' class='nav-btn'>Create New</div></nav><hr/>";
   newpage += "<button id='reload' type='button'>Change Colors</button>";
   newpage += "<section id='title'>";
   newpage += "<h4 id='filename' value='"+filename+"'>post name: " + filename + "</h4>";
@@ -311,7 +311,7 @@ app.get('/search', function(req, res, next){
   let fileArr = searchAll();
 
   setTimeout(function(){
-    console.log(fileArr);
+    // console.log(fileArr);
     res.render('search.ejs', { fileArr });
   },1000);
 
@@ -482,37 +482,34 @@ function changepage(req, res, next, file, vote, cb){
 //
 //=====================fetch test============================
 app.get('/fetch', function(req, res, next){
-  // if(req.session[+"_votes"]){
-  //     res.send();
-  // } else {
-  //   req.session[+"_votes"] = 1;
-  // }
-
-
   // Does not return any page. just makes server-side changes.
   // tests if request contains a file and vote query.
 
   // loop in changepage is dependent on starting at one.
   // incoming vote needs to take into consideration.
   // ie. vote0 will do absolutely nothing.
-  let flag = true;
-  if(req.query.file && req.query.vote){
-    if(req.session[req.query.name+"_votes"]){
-      req.session[req.query.name+"_votes"]++;
-    }else{
-      req.session[req.query.name+"_votes"] = 1;
-    }
-    for(var i = 0; i < excluded.length; i++){
-      if(req.query.file == excluded[i].toString()){
-        flag = false;
+  if(req.res.req['headers']['authorization'] == "Fox"){
+    let flag = true;
+    if(req.query.file && req.query.vote){
+      if(req.session[req.query.name+"_votes"]){
+        req.session[req.query.name+"_votes"]++;
+      }else{
+        req.session[req.query.name+"_votes"] = 1;
       }
-    }
-    if(flag){
-      let file = req.query.file;
-      let vote = req.query.vote;
-      changepage(req, res, next, file, vote, cb);
+      for(var i = 0; i < excluded.length; i++){
+        if(req.query.file == excluded[i].toString()){
+          flag = false;
+        }
+      }
+      if(flag){
+        let file = req.query.file;
+        let vote = req.query.vote;
+        changepage(req, res, next, file, vote, cb);
+      }else{
+        res.status(404);
+        next();
+      }
     }else{
-      res.status(404);
       next();
     }
   }else{
