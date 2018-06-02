@@ -8,12 +8,12 @@ const MongoStore = require('connect-mongo')(session);
 
 app.use(session({
     store: new MongoStore({
-      url: process.env.URL,
-      ttl:  30 * 60 * 60 // = half an hour
+      url: process.env.URL
+      // ttl:  30 * 60 * 60 // = half an hour
     }),
     secret: process.env.BUM,
     cookie: {
-            expires: 15 * 60 * 1000 // 15 min
+            expires: 365 * 24 * 60 * 60 * 1000 // 15 min
         },
     resave: false,
     saveUninitialized: false
@@ -163,6 +163,7 @@ app.all('*', function(req, res, next){
   //     req.session.page_views = 1;
   //     //res.send("Welcome to this page for the first time!");
   //  }
+  //res.status(404);
   console.log('');
   console.log("Request from IP:",req.headers['x-forwarded-for'].split(',')[0]);
   console.log("Requesting URL:",req.originalUrl);
@@ -272,7 +273,7 @@ app.all('/create', function(req, res, next){
     fs.writeFile("views/" + filename + ".ejs", postbody, function(err){
       if(err) {
         console.log(err.stack);
-        next();
+
       }
       console.log("new file created");
     });
@@ -288,6 +289,7 @@ app.all('/create', function(req, res, next){
     },1500)
 
   }else{
+    res.status(404);
     next();
   }
 });
@@ -355,8 +357,10 @@ app.get('/lookup:qwry', function(req, res, next){
       req.session[tmp+"_views"] = 1;
       //res.send("Welcome to this page for the first time!");
    }
+    console.log("Temp",tmp);
     res.render(tmp);
   }
+
   // res.status(200).set({'content-type':'text/html'});
   // res.write("<h1>" + tmp.substring(1) + "</h1>");
   // res.end();
@@ -384,12 +388,14 @@ app.post('/test', function(req, res, next){
   let skunk = req.body['title'].toString();
   //console.log("Vote for: " + req.body.bird + "\nIn: " + skunk);
 
-  console.log("creation values:");
-  console.log(skunk + "\n" + desc + "\n" + num + "\n" + names + "\n" + req.body.bird);
+  //console.log("creation values:");
+  //console.log(skunk + "\n" + desc + "\n" + num + "\n" + names + "\n" + req.body.bird);
 
   if(req.session[skunk+"_votes"]){
-      res.send();
-  } else {
+    console.log('good');
+    res.send();
+  }else{
+    console.log('else');
     req.session[skunk+"_votes"] = 1;
 //     let postbody = buildPage(skunk, desc, num, names, req.body.bird);
 
@@ -400,7 +406,6 @@ app.post('/test', function(req, res, next){
 //       }
 //       console.log("new file created");
 //     });
-
     res.send(req.body.bird);
   }
 });
@@ -465,6 +470,7 @@ function changepage(req, res, next, file, vote, cb){
       fs.writeFile("views/" + file +".ejs", tempPage, function(err){
       if(err) {
         console.log(err.stack);
+        res.status(404);
         next();
       }
       console.log("new file created");
@@ -473,6 +479,7 @@ function changepage(req, res, next, file, vote, cb){
       // just so i can see in a browser that nothing failed.
       //cb(req, res, tempPage);
     }else{
+      res.status(404);
       next();
     }
   })
@@ -488,6 +495,7 @@ app.get('/fetch', function(req, res, next){
   // loop in changepage is dependent on starting at one.
   // incoming vote needs to take into consideration.
   // ie. vote0 will do absolutely nothing.
+  console.log(req.res.req['headers']['authorization']);
   if(req.res.req['headers']['authorization'] == "Fox"){
     let flag = true;
     if(req.query.file && req.query.vote){
@@ -510,9 +518,11 @@ app.get('/fetch', function(req, res, next){
         next();
       }
     }else{
+      res.status(404);
       next();
     }
   }else{
+    res.status(404);
     next();
   }
 });
