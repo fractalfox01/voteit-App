@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Create Page Template</title>
+    <%- include partials/head.ejs %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <style>
+      body{
+        background-color: #ccc;
+      }
+      header{
+        text-align: center;
+        padding-top: 5px;
+        height: 2.3em;
+        font-size: 2em;
+        background-color: #3030a9;
+        color: #ccc;
+      }
+      footer{
+        position: absolute;
+        width: 100%;
+        margin-top: 10vw;
+        text-align: center;
+      }
+      nav{
+        display: flex;
+        flex-direction: row;
+      }
+      .nav-btn{
+        height: 30px;
+        background-color: #ccc;
+        flex-grow: 1;
+        font-size: 1.5em;
+        text-align: center;
+        padding-top: 5px;
+        border: 1px solid #000;
+      }
+      .nav-btn:hover{
+        background-color: #cce;
+      }
+      #search{
+        color: blue;
+        order: 0;
+      }
+      #home{
+        color: blue;
+        order: 1;
+      }
+      #mycanvas{
+        position: absolute;
+        margin-left: 40vw;
+        margin-top: 5vh;
+      }
+      #ex{
+        position: absolute;
+        margin-left: 50vw;
+        margin-top: 60vh;
+      }
+      #labels-link{
+        margin-left: 20%;
+        color: #000;
+      }
+      @media only screen and (max-device-width:450px){
+        button{
+          margin-left: 0vw;
+        }
+      }
+    </style>
+    <!--<link rel="stylesheet" href="/styles/index.css"/>-->
+</head>
+<body>
+<%- include partials/header.ejs %>
+<nav id="nav">
+    <div id="home" class="nav-btn">Home</div>
+    <div id="search" class="nav-btn">Search</div>
+    <div id="manage" class="nav-btn">Manage</div>
+</nav>
+<hr/>
+<!--In development.........-->
+<div id="graph-container">
+    <canvas id="mycanvas" width="400" height="400"></canvas>
+    <h1 id="ex" >Example</h1>
+</div>
+<div class="container">
+    <h2>Dynamic Chart Builder</h2>
+    <p>My attempt at creating a dynamic chart builder.</p>
+    <div style="width:10%;" class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#collapse1">Chart Type</a>
+                </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+                <ul class="list-group">
+                    <li id="pie" style="background-color:#4370ae;" class="list-group-item"><a style="color:#fff;margin-left:25px;" href="#">Pie</a></li>
+                    <li id="doughnut" style="background-color:#4370ae;" class="list-group-item"><a style="color:#fff;margin-left:5px;" href="#">Doughnut</a></li>
+                    <li id="bar" style="background-color:#4370ae;" class="list-group-item"><a style="color:#fff;margin-left:25px;" href="#">Bar</a></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div style="width:10%;" class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="title">
+                    <a id="labels-link" data-toggle="collapse" href="#collapse2">labels</a>
+                </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+                <ul id="lbls" class="list-group">
+                    <!-- starts out empty -->
+                </ul>
+                <div class="panel-footer"><button id="addlabel" type="button">Add</button><button id="removelabel" type="button">Remove</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<%- include partials/footer.ejs %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/scripts/newcreate.js"></script>
+</html>
