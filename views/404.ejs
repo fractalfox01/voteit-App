@@ -13,11 +13,6 @@
         background-color: #3030a9;
         color: #ccc;
       }
-      input{
-        background-color: #fff;
-        width: 20px;
-        height: 20px;
-      }
       button{
         margin-left: 47vw;
         border-radius: 10px;
@@ -27,13 +22,6 @@
         width: 100%;
         margin-top: 20vw;
         text-align: center;
-      }
-      #page{
-        background-color: #fff;
-        color: blue;
-      }
-      .choices{
-        margin-left: 42vw;
       }
       nav{
         display: flex;
@@ -55,13 +43,61 @@
         color: blue;
         order: 0;
       }
-      #delete{
+      #search{
         color: blue;
         order: 1;
       }
-      #search{
+      #home{
         color: blue;
         order: 2;
+      }
+      #file{
+        margin-top: 20vh;
+        margin-left: 10vw;
+        margin-right: 10vw;
+        padding: 5px 5px 10px 5px;
+        width: auto;
+        height: auto;
+        background-color: #7a98b0;
+        text-align: center;
+        color: #cecdce;
+      }
+      #status{
+        margin-top: 10px;
+        margin-left: 30vw;
+        margin-right: 30vw;
+        text-align: center;
+        width: auto;
+        height: auto;
+        background-color: #db5560;
+        font-size: 2em;
+      }
+      @media only screen and (max-device-width:450px){
+        .choices{
+          margin-left: 20vw;
+        }
+        #file{
+          margin-top: 10vh;
+          margin-left: 1vw;
+          margin-right: 1vw;
+          word-wrap: break-word;
+          padding: 5px 5px 10px 5px;
+          width: auto;
+          height: auto;
+          background-color: #7a98b0;
+          text-align: center;
+          color: #cecdce;
+        }
+        #status{
+          margin-top: 10px;
+          margin-left: 30vw;
+          margin-right: 30vw;
+          text-align: center;
+          width: auto;
+          height: auto;
+          background-color: #db5560;
+          font-size: 2em;
+        }
       }
     </style>
     <!--<link rel="stylesheet" href="/styles/index.css"/>-->
@@ -72,10 +108,19 @@
 <nav id="nav">
     <div id="create" class="nav-btn">Create New</div>
     <div id="search" class="nav-btn">Search</div>
+    <div id="home" class="nav-btn">Home</div>
 </nav>
 <hr/>
-<p>
-    <%= tried %> Was Not Found.
-</p>
+<div id="file">
+    <h1>
+        <%= tried %> Was Not Found.
+    </h1>
+</div>
+<div id="status">
+    <p>
+        Status <%= status %>
+    </p>
+</div>
 </body>
+<script src="/scripts/error.js"></script>
 </html>
