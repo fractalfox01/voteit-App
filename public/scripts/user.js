@@ -39,18 +39,19 @@ function release(arr){
     }
   }
 }
-const arr = ["File","Type","Page","Poll","Grey","Hours","Minute","Day","Date","Statix","Traffic","HTTP","LEFT"];
-const reload = document.getElementById('reload');
-const create = document.getElementById('create');
-const home = document.getElementById('home');
-const title = document.getElementById('title');
-const desc = document.getElementById('desc');
-const filename = document.getElementById('filename');
-const search = document.getElementById('search');
-
+let arr = ["File","Type","Page","Poll","Grey","Hours","Minute","Day","Date","Statix","Traffic","HTTP","LEFT"];
+let reload = document.getElementById('reload');
+let create = document.getElementById('create');
+let home = document.getElementById('home');
+let title = document.getElementById('title');
+let desc = document.getElementById('desc');
+let filename = document.getElementById('filename');
+let search = document.getElementById('search');
+search.style.color = "blue";
+create.style.color = "blue";
 
 let real = [];
-const _undefined = release(arr);
+let _undefined = release(arr);
 
 for(var i = 0; i < 10; i++){
   let tmp = "vote" + i;
@@ -98,6 +99,24 @@ for(var j = 0; j < real.length; j++){
 
   });
 }
+
+// let v1 = document.getElementById('vote0');
+// v1.addEventListener('click', function(e){
+//   console.log("outgoing to /test");
+//   let outgoing = new XMLHttpRequest();
+//   outgoing.open("POST", 'https://voteit.glitch.me/test', true);
+//   outgoing.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//   outgoing.onreadystatechange = function(){
+//     console.log(XMLHttpRequest.DONE === 4);
+//     console.log(outgoing.status == 200);
+
+//     if(XMLHttpRequest.DONE === 4 && outgoing.status == 200){
+//       console.log("Goose says " + (outgoing.responseText||"quack"));
+//       console.log("resp " + this.response);
+//     }
+//   };
+//   outgoing.send("bird="+v1.id+"&title="+title.innerHTML);
+// });
 
 reload.addEventListener('click', function(){window.location.reload(true);});
 create.addEventListener('click', function(){location = 'https://voteit.glitch.me/create'});
