@@ -1,13 +1,18 @@
 let number = document.getElementById('number');
 let filename = document.getElementById('filename');
 let submit = document.getElementById('submit');
-let goback = document.getElementById('back');
+let home = document.getElementById('home');
+let search = document.getElementById('search');
 let choicenames = document.getElementById('choicenames');
 
 console.log("working");
 
-goback.addEventListener('click', function(){
+home.addEventListener('click', function(){
   window.location = "https://voteit.glitch.me/";
+});
+
+search.addEventListener('click', function(){
+  window.location = "https://voteit.glitch.me/search";
 });
 
 number.addEventListener('keyup',function(){
