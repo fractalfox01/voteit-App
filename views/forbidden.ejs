@@ -55,11 +55,11 @@
         color: blue;
         order: 0;
       }
-      #delete{
+      #search{
         color: blue;
         order: 1;
       }
-      #search{
+      #home{
         color: blue;
         order: 2;
       }
@@ -75,6 +75,11 @@
       #warning{
         color: #f00;
       }
+      @media only screen and (max-device-width:450px){
+        section{
+          margin: 10vh;
+        }
+      }
     </style>
     <!--<link rel="stylesheet" href="/styles/index.css"/>-->
 </head>
@@ -84,10 +89,13 @@
 <nav id="nav">
     <div id="create" class="nav-btn">Create New</div>
     <div id="search" class="nav-btn">Search</div>
+    <div id="home" class="nav-btn">Home</div>
 </nav>
 <hr/>
 <section>
     <span id="warning">Access Denied.</span>
 </section>
 </body>
+<%- include partials/footer.ejs %>
+<script src="/scripts/error.js"></script>
 </html>
