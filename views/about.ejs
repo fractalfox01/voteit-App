@@ -1,0 +1,109 @@
+<html>
+<head>
+    <%- include partials/head.ejs %>
+    <style>
+      body{
+        background-color: #ccc;
+      }
+      header{
+        text-align: center;
+        padding-top: 5px;
+        height: 2.3em;
+        font-size: 2em;
+        background-color: #3030a9;
+        color: #ccc;
+      }
+      footer{
+        position: absolute;
+        width: 100%;
+        margin-top: 10vw;
+        text-align: center;
+      }
+      #page{
+        background-color: #ccc;
+        color: #634892;
+      }
+      #old{
+        color: #cb3357;
+        font-size: 1.3em;
+        margin-right: 5px;
+        background-color: #ccc;
+      }
+      nav{
+        display: flex;
+        flex-direction: row;
+      }
+      .nav-btn{
+        height: 30px;
+        background-color: #ccc;
+        flex-grow: 1;
+        font-size: 1.5em;
+        text-align: center;
+        padding-top: 5px;
+        border: 1px solid #000;
+      }
+      .nav-btn:hover{
+        background-color: #cce;
+      }
+      #create{
+        color: blue;
+        order: 0;
+      }
+      #search{
+        color: blue;
+        order: 1;
+      }
+      #home{
+        color: blue;
+        order: 2;
+      }
+      #about-wrap{
+        width: auto;
+        height: auto;
+        overflow-wrap: break-word;
+        background-color: 207084;
+        margin: 10px 10vw 0px 10vw;
+      }
+      #page{
+        text-align: center;
+      }
+      section p{
+        color: #eef;
+        margin-left: 3vh;
+        margin-right: 1vh;
+      }
+      section h2{
+        color: #ddf;
+        margin-left: 1vw;
+      }
+    </style>
+    <!--<link rel="stylesheet" href="/styles/login.css"/>-->
+</head>
+<body>
+<%- include partials/header.ejs %>
+<nav>
+    <div id="create" class="nav-btn">Create New</div>
+    <div id="search" class="nav-btn">Search</div>
+    <div id="home" class="nav-btn">Home</div>
+</nav>
+<hr/>
+<div id="about-wrap">
+    <h1 id="page">About This Site</h1>
+    <section>
+        <p>This is my attempt at FreeCodeCamp.org's Voting App Challenge.</p>
+        <h2>Basic usage as follows:</h2>
+        <p>Voting is open, no login required. Simply head over to the <a href="https://voteit.glitch.me/search" target="_self">Search</a> page and, scroll to see the available voting polls available to vote on.</p>
+        <p>Click on the poll title and, you will be redirected to the voting poll.</p>
+        <h2>Creating A vote:</h2>
+        <p>Authentication IS required in order to create a new vote.</p>
+        <p>When creating a new voting poll, each voting boxes color is randomly generated</p>
+        <p>Immediately after creating a new voting poll, you have the option to generate new random colors for the boxes.</p>
+        <p>Any votes before any color changes will not be saved.</p>
+        <hr/>
+        <h5>Have fun and keep it clean, I do log all IP ;)</h5>
+    </section>
+</div>
+</body>
+<%- include partials/footer.ejs %>
+<script src="/scripts/error.js"></script>
+</html>
