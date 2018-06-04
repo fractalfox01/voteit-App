@@ -61,14 +61,13 @@
       .nav-btn:hover{
         background-color: #cce;
       }
-      .nav-blank{
-        height: 30px;
-        background-color: #ccc;
-        flex-grow: 1;
-        font-size: 1.5em;
-        text-align: center;
-        padding-top: 5px;
-        border: 1px solid #000;
+      #search{
+        color: blue;
+        order: 0;
+      }
+      #home{
+        color: blue;
+        order: 1;
       }
       .filename{
         margin-left: 15px;
@@ -117,6 +116,7 @@
 <nav id="nav">
     <div id="home" class="nav-btn">Home</div>
     <div id="search" class="nav-btn">Search</div>
+    <div id="manage" class="nav-btn">Manage</div>
 </nav>
 <form name="create" method="post" action="/create">
     <h4 class="choices">Post Title: <input id="filename" class="filename" name="filename[name]" type="text" required/><span style="color:red;font-size:.8em;"> no spaces allowed!</span></h4>
