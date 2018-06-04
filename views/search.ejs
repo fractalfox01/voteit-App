@@ -15,11 +15,14 @@
       }
       footer{
         position: absolute;
-        width: 100%;
-        margin-top: 20vw;
+        width: 98vw;
+        margin-top: 5%;
+        margin-right: 5vw;
         text-align: center;
+        color: #0f0;
+        font-size: 1.5em;
+        background-color: black;
       }
-
       nav{
         display: flex;
         flex-direction: row;
@@ -36,37 +39,33 @@
       .nav-btn:hover{
         background-color: #cce;
       }
-      .nav-blank{
-        height: 30px;
-        background-color: #ccc;
-        flex-grow: 1;
-        font-size: 1.5em;
-        text-align: center;
-        padding-top: 5px;
-        border: 1px solid #000;
+      #create{
+        color: blue;
+        order: 0;
+      }
+      #home{
+        color: blue;
+        order: 1;
       }
       #linkwrap{
         padding-top: 1px;
         padding-bottom: 1px;
-        width: 20%;
+        width: 25vw;
         height: auto;
         background-color: #469;
+        overflow-wrap: break-word;
         margin-left: 37vw;
         margin-top: 3px;
         border: 2px double #624;
         border-radius: 5px;
       }
-      #title{
-        margin-top: 4vh;
-        width: 100%;
-        text-align: justify;
-        font-size: 2em;
-      }
       #link{
-        font-size: 1em;
+        font-size: 1.5em;
         background-color: #676767;
         color: #fff;
-        margin-left: 20px;
+        width: 200px;
+        text-align: center;
+        margin-left: 10%;
       }
       #link:hover{
         color: #0f0;
@@ -80,20 +79,13 @@
           padding-bottom: 1px;
           width: auto;
           height: auto;
-          background-color: #964;
+          background-color: #469;
           margin-left: 5vw;
           margin-right: 5vw;
           margin-top: 3px;
         }
-        #title{
-          margin-top: 4vh;
-          width: 100%;
-          text-align: justify;
-          font-size: 2em;
-        }
         #link{
-          font-size: 1em;
-          background-color: #676767;
+          background-color: #222;
           color: #fff;
           margin-left: 20px;
         }
@@ -108,14 +100,14 @@
 <%- include partials/header.ejs %>
 <nav id="nav">
     <div id="create" class="nav-btn">Create New</div>
-    <div id="home" class="nav-blank">Home</div>
+    <div id="home" class="nav-btn">Home</div>
 </nav>
 <h1 id="pagetitle">
     Search Page
 </h1>
 <% for (var i = 0; i < fileArr.length; i++) { %>
 <div id="linkwrap">
-    <h1 id="title"><%= fileArr[i] %><a id="link" href="https://voteit.glitch.me/lookup:<%= fileArr[i] %>">Goto</a></h1>
+    <a href="https://voteit.glitch.me/lookup:<%= fileArr[i] %>"><h1 id="link"  ><%= fileArr[i] %></h1></a>
 </div>
 <% } %>
 </body>
