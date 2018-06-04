@@ -5,7 +5,10 @@ const fs = require('fs');
 const mongo = require('mongodb');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const https = require('https');
+const helmet = require('helmet');
 
+app.use(helmet.frameguard({ action: 'deny' }))
 app.use(session({
     store: new MongoStore({
       url: process.env.URL
@@ -13,7 +16,7 @@ app.use(session({
     }),
     secret: process.env.BUM,
     cookie: {
-            expires: 365 * 24 * 60 * 60 * 1000 // 15 min
+            expires: new Date(Date.now() + ( 30* 24 * 60 * 60 * 1000)) // 30 days
         },
     resave: false,
     saveUninitialized: false
@@ -22,7 +25,7 @@ app.use(session({
 const port = process.argv[2] || 3000;
 
 // All files in views/ directory that should not be editable/displayed to a basic user should be included in the excluded array.
-const excluded = ["index.ejs","login.ejs","search.ejs","forbidden.ejs","create.ejs","404.ejs", "partials", "public", "styles"];
+const excluded = ["newCreate","over_ride_test.ejs","index.ejs","login.ejs","search.ejs","forbidden.ejs","create.ejs","404.ejs" , "about.ejs" ,"security.ejs" , "partials", "public", "styles"];
 
 const dir = "views/";
 
@@ -56,6 +59,9 @@ function searchAll(){
       }
     }
   });
+  for(var e in fileArr){
+    console.log("e:",e);
+  }
   return fileArr;
 }
 
@@ -95,15 +101,19 @@ function buildPage(filename, desc, num, names, update, colors){
   newpage += "#home{color:blue;order:0}";
   newpage += "";
   newpage += "#wrapper{margin-left:2vw;margin-right:2vw;display: flex;flex-direction: row;}";
-  newpage += ".option{min-width:9vw;height: 300px;flex-grow: 0;background-color: #ccc;border: 2px solid #000;}";
+  newpage += ".option{min-width:9vw;height: 300px;flex-grow:0;overflow-wrap:break-word;background-color: #ccc;border: 2px solid #000;}";
   for(var i = 0;i < num; i++){
-    newpage += ".obj"+i+"{order: "+i+";}";
+    newpage += ".obj"+i+"{order: "+i+";width:75px;}";
     newpage += "#vote"+i+"{opacity: 1;}";
     newpage += "#vote"+i+":hover{background-color:blue;opacity: .5;}";
   }
   newpage += "h4{margin-left:2vw;font-size:1.5em;}";
-  newpage += "#title{margin:0px 100px 50px 100px;height:20vh;width:auto;background-color:#979797;}";
+  newpage += "#title{margin:0px 100px 50px 100px;width:auto;background-color:#275497;}";
   newpage += "#reload{color:#00f;}";
+  newpage += "@media only screen and (max-device-width: 450px){";
+  newpage += "#title{margin:0px;height:40vh;}";
+  newpage += "#filename{width:100%;}";
+  newpage += "#desc{width:100%;}}";
   newpage += "</style>";
   newpage += "</head>";
   newpage += "<body>";
@@ -164,12 +174,16 @@ app.all('*', function(req, res, next){
   //     //res.send("Welcome to this page for the first time!");
   //  }
   //res.status(404);
+  //res.set({'X-Frame-Options':'DENY','X-Powered-By':'Encoded_Void'});
   console.log('');
   console.log("Request from IP:",req.headers['x-forwarded-for'].split(',')[0]);
   console.log("Requesting URL:",req.originalUrl);
   next();
 });
 
+app.get('/newCreate',function(req,res,next){
+  res.render('newCreate');
+});
 //=================================================== INDEX ========================================================================
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
@@ -190,7 +204,12 @@ app.get('/', function(req, res, next){
     next();
   }else{
 
-    res.render("index.ejs", {"query":"index page"});
+    if(req.session.github_success != undefined){
+      res.render("index.ejs", {"query":"You Are Signed in."});
+    }else{
+      req.session.github_success = undefined;
+      res.render("index.ejs", {"query":"Not logged in."});
+    }
   }
 });
 
@@ -201,24 +220,38 @@ app.get('/', function(req, res, next){
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 // ================================================== LOGIN ========================================================================
 app.get('/login', function(req, res, next){
-  if(req.session.login_views){
-      req.session.login_views++;
-      //res.send("You visited this page " + req.session.page_views + " times");
-   } else {
-      req.session.login_views = 1;
-      //res.send("Welcome to this page for the first time!");
-   }
+
   // Login Page.
   // Handles oauth assignment.
   // Status code 403 assigned if required elements not found.
-  console.log("in login");
-
   if(req.query.github == 'on'){
     // checking for github.
-    res.render("login.ejs", {"query": "github selected"} );
+    if(req.session.github_login){
+      req.session.github_login++;
+      console.log("logins this month",req.session.github_login);
+      console.log("Expires:",req.session.cookie);
+      //res.send("You visited this page " + req.session.page_views + " times");
+    }else{
+      req.session.github_login = 1;
+
+      console.log('First Visit');
+      //res.send("Welcome to this page for the first time!");
+    }
+    //GET https://github.com/login/oauth/authorize
+    let github_header = 'client_id='+ process.env.CLIENT_ID + '&redirect_uri=https://voteit.glitch.me/auth&scope=user:email&state=' + process.env.SECRET + '&allow_signup=true';
+    //res.header(github_header);
+    res.status(301);
+    res.redirect( "https://github.com/login/oauth/authorize?" + github_header );
 
   }else if(req.query.email == 'on'){
     // checking for email.
+    if(req.session.email_login){
+      req.session.email_login++;
+      //res.send("You visited this page " + req.session.page_views + " times");
+    }else{
+      req.session.email_login = 1;
+      //res.send("Welcome to this page for the first time!");
+    }
     res.render("login.ejs", {"query": "email selected"} );
 
   }else{
@@ -235,64 +268,93 @@ var bodyParser = require('body-parser'); app.use(bodyParser.json()); app.use(bod
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 // ================================================== CREATE ========================================================================
-// The form needs to be re-done;
-// page generate (in-page)? color picker implemantation? done like post routing, use value routing?
+// As predicted, /create needs a major overhaul. Will be using Chart.js and Account Management.. Major Overhaul..
 app.all('/create', function(req, res, next){
-  if(req.session.create_views){
+
+  if(req.session["github_success"]){
+    // github_success cookie Found
+    if(req.session.create_views){
       req.session.create_views++;
-      //res.send("You visited this page " + req.session.page_views + " times");
-   } else {
+    }else{
+      // No create_views cookies found.
       req.session.create_views = 1;
-      //res.send("Welcome to this page for the first time!");
-   }
-  //res.cookie('name', 'express');
-  let filename;
-  if(req.method == 'GET'){
-    console.log("GET - creating new ejs file");
-    filename = "";
-    res.render("create.ejs", { filename });
-  }else if(req.method == 'POST'){
-    console.log("POST - submitting attributes");
-    if(!req.body.filename){
-      req.body.filename.name = "";
     }
-    let filename = req.body.filename.name;
-    if(filename[0] == "."){
-      filename = filename.substring(1);
-    }
-    let desc = req.body.description.desc;
-    let num = req.body['choice-items'].num;
-    let names = [];
-    for(var g in req.body.choice){
-      let v = req.body.choice[g.toString()];
-      names.push(v);
-    }
-    //  Creation of users ejs file.
-    let postbody = buildPage(filename, desc, num, names);
-
-    fs.writeFile("views/" + filename + ".ejs", postbody, function(err){
-      if(err) {
-        console.log(err.stack);
-
+    //res.cookie('name', 'express');
+    let filename;
+    if(req.method == 'GET'){
+      console.log("GET - creating new ejs file");
+      filename = "";
+      res.render("create.ejs", { filename });
+    }else if(req.method == 'POST'){
+      console.log("POST - submitting attributes");
+      if(!req.body.filename){
+        req.body.filename.name = "";
       }
-      console.log("new file created");
-    });
-    // req.body.filename.name
-    // req.body.description.desc
-    // req.body.choice-items.num
+      let filename = req.body.filename.name;
+      if(filename[0] == "."){
+        filename = filename.substring(1);
+      }
+      let desc = req.body.description.desc;
+      let num = req.body['choice-items'].num;
+      let names = [];
+      for(var g in req.body.choice){
+        let v = req.body.choice[g.toString()];
+        names.push(v);
+      }
+      //  Creation of users ejs file.
+      let postbody = buildPage(filename, desc, num, names);
 
-    console.log();
-    // NOTE:----------------if the user created page stops displaying but, it's still being created. then its probably because its displaying before its created.
-    // give it more time.
-    setTimeout(function(){
-      res.render( filename + ".ejs" );
-    },1500)
+      let count = 0;
+      for(var gg = 0; gg < excluded.length; gg++ ){
+        if((filename+".ejs") != excluded[gg].toString()){
+          console.log("filename:",filename);
+          console.log("excluded:",excluded[gg].toString());
+          count++;
+        }
+      }
+      if(count == excluded.length){
+        fs.writeFile("views/" + filename + ".ejs", postbody, function(err){
+          if(err) {
+            console.log(err.stack);
 
+          }
+          console.log("new file created");
+        });
+      }else{
+        res.status(403);
+        next();
+      }
+
+      // req.body.filename.name
+      // req.body.description.desc
+      // req.body.choice-items.num
+
+      console.log();
+      // NOTE:----------------if the user created page stops displaying but, it's still being created. then its probably because its displaying before its created.
+      // give it more time.
+      setTimeout(function(){
+        res.render( filename + ".ejs" );
+      },1500)
+
+    }else{
+      res.status(404);
+      next();
+    }
   }else{
-    res.status(404);
-    next();
+    res.render('index', {"query":"Not Authenticated"});
   }
+
 });
+//=================================================== About ========================================================================
+// {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
+//   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
+// {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
+//   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
+// ================================================== About ========================================================================
+app.get('/about', function(req, res, next){
+  res.render('about');
+});
+
 //=================================================== SEARCH ========================================================================
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
@@ -319,7 +381,6 @@ app.get('/search', function(req, res, next){
 
 
 });
-
 //=================================================== LOOKUP ========================================================================
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
@@ -327,40 +388,56 @@ app.get('/search', function(req, res, next){
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 // ================================================== LOOKUP ========================================================================
 app.get('/lookup:qwry', function(req, res, next){
-
+  let exists = false;
   let flag = false;
   let tmp = "";
-  //console.log(req.params.qwry);
-  if(req.params.qwry){
-    tmp = req.params.qwry;
-    tmp = tmp.substring(1);
-  }else{
-    tmp = "void";
-  }
+  let all = searchAll();
+  setTimeout(function(){
+    console.log(all);
 
-  for(var i = 0; i < excluded.length; i++){
-    //console.log(tmp == excluded[i].toString())
-    if(excluded[i].toString().includes(tmp)){
-      flag = true;
+    //console.log(req.params.qwry);
+    if(req.params.qwry){
+      tmp = req.params.qwry;
+      tmp = tmp.substring(1);
+      for(var e in all){
+        //console.log(all[e] + " VS " + tmp);
+        if(all[e] == tmp){
+          exists = true;
+        }
+      }
+    }else{
+      tmp = "void";
     }
-    //console.log('next');
-  }
-  if(flag){
-    let tried = tmp;
-    let status = res.statusCode;
-    res.render('404.ejs',{ tried, status });
-  }else{
-    if(req.session[tmp+"_views"]){
-      req.session[tmp+"_views"]++;
-      //res.send("You visited this page " + req.session.page_views + " times");
-   } else {
-      req.session[tmp+"_views"] = 1;
-      //res.send("Welcome to this page for the first time!");
-   }
-    console.log("Temp",tmp);
-    res.render(tmp);
-  }
+    if(exists){
+      console.log("Query:",tmp);
+      for(var i = 0; i < excluded.length; i++){
+        //console.log(tmp == excluded[i].toString())
+        if(excluded[i].toString().includes(tmp)){
+          flag = true;
+        }
+        //console.log('next');
+      }
+      if(flag){
+        let tried = tmp;
+        let status = res.statusCode;
+        res.render('404.ejs',{ tried, status });
+      }else{
+        if(req.session[tmp+"_views"]){
+          req.session[tmp+"_views"]++;
+          //res.send("You visited this page " + req.session.page_views + " times");
+       } else {
+          req.session[tmp+"_views"] = 1;
+          //res.send("Welcome to this page for the first time!");
+       }
+        console.log("Temp",tmp);
 
+        res.render(tmp);
+      }
+    }else{
+      res.status(404);
+      next();
+    }
+  },1000);
   // res.status(200).set({'content-type':'text/html'});
   // res.write("<h1>" + tmp.substring(1) + "</h1>");
   // res.end();
@@ -486,7 +563,7 @@ function changepage(req, res, next, file, vote, cb){
 
 }
 //=====================fetch test============================
-//
+//  SHOULD PROBABLY REWRITE THIS AND MOVE TO OWN QUARANTINED SECTION ALONG WITH ANY DEPENDENCIES.
 //=====================fetch test============================
 app.get('/fetch', function(req, res, next){
   // Does not return any page. just makes server-side changes.
@@ -495,8 +572,11 @@ app.get('/fetch', function(req, res, next){
   // loop in changepage is dependent on starting at one.
   // incoming vote needs to take into consideration.
   // ie. vote0 will do absolutely nothing.
+  let ref;
   console.log(req.res.req['headers']['authorization']);
-  if(req.res.req['headers']['authorization'] == "Fox"){
+  console.log(ref = req.res.req['headers']['referer']);
+
+  if(req.res.req['headers']['authorization'] == "Fox" && ref.includes("https://voteit.glitch.me/lookup:")){
     let flag = true;
     if(req.query.file && req.query.vote){
       if(req.session[req.query.name+"_votes"]){
@@ -526,6 +606,38 @@ app.get('/fetch', function(req, res, next){
     next();
   }
 });
+//=============================================== Auth ==================================================================
+// {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}
+//   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{
+// {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}
+//   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{
+// ============================================== Auth ==================================================================
+app.get('/auth', function(req, res, next){
+  console.log("incoming for auth");
+  // Example:
+  //access_token=e72e16c7e42f292c6912e7710c838347ae178b4a&token_type=bearer
+  if(req.query){
+    if(req.params){
+      console.log("Full P:",req.params);
+    }
+    console.log("Full Q:",req.query);
+    console.log(req.query['code']); // secret string
+    if(req.query.state != process.env.SECRET){
+      console.log("Bad Secret");
+      res.status(404);
+      next();
+    }else{
+
+      console.log(req.query['state']); // scope
+      req.session["github_success"] = req.query['code'];
+      res.render("index.ejs", {"query":"Success!"});
+    }
+  }else{
+    res.status(404).set('content-type','text/html');
+    res.write('No Params');
+    res.end()
+  }
+});
 
 //=============================================== 403 & 404 ERRORs ==================================================================
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
@@ -533,6 +645,16 @@ app.get('/fetch', function(req, res, next){
 // {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 //   {{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}{{}}
 // ============================================== 403 & 404 ERRORs ==================================================================
+app.get('/favicon.ico',function(req, res, next){
+  res.status(404);
+  console.log("Boom!");
+  next();
+});
+
+app.get('/.well-known/security.txt', function(req, res, next){
+  res.render('security');
+});
+
 app.all('*', function(req, res, next){
   // Handle's route fall-through
   // if the request make's it this far, then it found no matches (status != 200).
