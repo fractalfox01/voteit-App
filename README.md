@@ -2,6 +2,7 @@
 ****
 #### Created by Tommy V
 
+CODE NOT MAINTAINED AND SITE NO LONGER HOSTED
 An Application (__currently in development__) for [FreeCodeCamp.Org's](https://learn.freecodecamp.org/coding-interview-prep/take-home-projects/build-a-voting-app) "Build A Voting App" challenge.
 
 ##### Requirements:
@@ -24,7 +25,7 @@ An Application (__currently in development__) for [FreeCodeCamp.Org's](https://l
 
   * User Story: As an authenticated user, if I don't like the options on a poll, I can create a new option.
 ****
-# Currently in development
+# NO LONGER MAINTAINED
 
   This application is built using express.js
 
